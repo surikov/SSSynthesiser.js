@@ -301,6 +301,9 @@ SSSynthesiser.prototype.moveToNextSixteenth = function () {
 	//console.log("onJumpSixteenth",this.mix16Counter);
 };
 SSSynthesiser.prototype.moveToNextPosition = function () {
+	this.findAndMoveToNextPosition();
+};
+SSSynthesiser.prototype.findAndMoveToNextPosition = function () {
 	if (this.existsRightPosition(this.currentX, this.currentY)) {
 		this.currentX++;
 	} else {

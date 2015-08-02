@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>SSSynthesiser.js example</title>
+	<script src="SSSynthesiser.js"></script>
+	<script>
+	var initialized = false;
+	var sssynthesiser = null;
+	var playInfo = null;
+	var loopMode=0;
+	function initSSSynthesiser() {
+		if (!initialized) {
+			console.log("initSSSynthesiser");
+			var xmlHttpRequest = new XMLHttpRequest();
+			xmlHttpRequest.open('GET', "http://molgav.nn.ru/x/sviridovtimeforward.molgav", true);
+			xmlHttpRequest.onload = function () {
+				var o = JSON.parse(xmlHttpRequest.response);
+				sssynthesiser = new SSSynthesiser(o);
+				sssynthesiser.moveToNextPosition = xMoveToNextPosition;
+				initialized = true;
+				document.getElementById("initInfo").innerHTML = "initialized";
+				playInfo = document.getElementById("playInfo");
+				startInfoLoop();
+			};
+			xmlHttpRequest.onerror = function (xmlHttpRequestProgressEvent) {
+				console.log("error " + xmlHttpRequestProgressEvent);
+			};
+			xmlHttpRequest.send();
+		}
+	}
+	function xMoveToNextPosition() {
+		console.log("xMoveToNextPosition "+loopMode+"/"+sssynthesiser.currentX+"/"+sssynthesiser.currentY);
+		if(loopMode==0){
+			sssynthesiser.findAndMoveToNextPosition();
+			return;
+		}
+		if(loopMode==1){
+			sssynthesiser.currentX = 0;
+			sssynthesiser.currentY = 0;
+			sssynthesiser.currentPosition = sssynthesiser.findPosition(sssynthesiser.currentX, sssynthesiser.currentY);
+			return;
+		}
+		if(loopMode==2){
+			if((sssynthesiser.currentX == 3 && sssynthesiser.currentY == 2) || sssynthesiser.currentY < 1 || sssynthesiser.currentY >2 ){
+				sssynthesiser.currentX = 0;
+				sssynthesiser.currentY = 1;
+				sssynthesiser.currentPosition = sssynthesiser.findPosition(sssynthesiser.currentX, sssynthesiser.currentY);
+				return;
+			}
+			else{
+				sssynthesiser.findAndMoveToNextPosition();
+			}
+		}
+		if(loopMode==3){
+			if((sssynthesiser.currentX == 3 && sssynthesiser.currentY == 4) || sssynthesiser.currentY < 3){
+				sssynthesiser.currentX = 0;
+				sssynthesiser.currentY = 3;
+				sssynthesiser.currentPosition = sssynthesiser.findPosition(sssynthesiser.currentX, sssynthesiser.currentY);
+				return;
+			}
+			else{
+				sssynthesiser.findAndMoveToNextPosition();
+			}
+		}
+	}
+	function startInfoLoop() {
+		var info = "loop "+loopMode;
+		if (sssynthesiser != null) {
+			if (sssynthesiser.currentPosition != null) {
+				info = info + ", position " + sssynthesiser.currentPosition.left + ":" + sssynthesiser.currentPosition.top + ", sixteenth " + sssynthesiser.mix16Counter;
+			}
+		}
+		info = info + ", audiocontext time " + sssynthesiser.audioContext.currentTime;
+		playInfo.innerHTML = info;
+		setTimeout(startInfoLoop, 333);
+	}
+	function ready() {
+		if (!initialized) {
+			alert("Press Initialize first.");
+			return false;
+		} else {
+			return true;
+		}
+	}
+	function startPlay() {
+		if (ready()) {
+			if (!sssynthesiser.stopped) {
+				return;
+			}
+			console.log("startPlay");
+			sssynthesiser.startPlaySong();
+		}
+	}
+	function stopPlay() {
+		if (ready()) {
+			if (sssynthesiser.stopped) {
+				return;
+			}
+			console.log("stopPlay");
+			sssynthesiser.stopPlaySong();
+		}
+	}
+	function rewind() {
+		if (ready()) {
+			console.log("rewind");
+			sssynthesiser.currentX = 0;
+			sssynthesiser.currentY = 0;
+			sssynthesiser.currentPosition = sssynthesiser.findPosition(0, 0);
+			sssynthesiser.mix16Counter = 0;
+		}
+	}
+	function muteDrums() {
+		if (ready()) {
+			console.log("muteDrums");
+			for (var i = 0; i < sssynthesiser.song.samples.length; i++) {
+				if (sssynthesiser.song.samples[i].isDrum) {
+					sssynthesiser.song.samples[i].volume = 0;
+				} else {
+					sssynthesiser.song.samples[i].volume = 0.7;
+				}
+			}
+		}
+	}
+	function muteInstruments() {
+		if (ready()) {
+			console.log("muteInstruments");
+			for (var i = 0; i < sssynthesiser.song.samples.length; i++) {
+				if (!sssynthesiser.song.samples[i].isDrum) {
+					sssynthesiser.song.samples[i].volume = 0;
+				} else {
+					sssynthesiser.song.samples[i].volume = 0.7;
+				}
+			}
+			sssynthesiser.findSampleBySubPath("drums/000/Chaos_128/061_046-046_60_-4600.0_8-34789_32000").volume = 0.25;
+		}
+	}
+	function muteNone() {
+		if (ready()) {
+			console.log("muteNone");
+			for (var i = 0; i < sssynthesiser.song.samples.length; i++) {
+				sssynthesiser.song.samples[i].volume = 0.7;
+			}
+			sssynthesiser.findSampleBySubPath("drums/000/Chaos_128/061_046-046_60_-4600.0_8-34789_32000").volume = 0.25;
+		}
+	}
+	</script>
+</head>
+<body>
+	<h1>SSSynthesiser.js example</h1>
+	<p>How to use <a href="https://github.com/surikov/SSSynthesiser.js" target="_blank">SSSynthesiser.js</a> to play <a href="http://molgav.nn.ru/?song=x2/1433934921.66" target="_blank">example</a>.</p>
+	<ul>
+		<li><a href="javascript:initSSSynthesiser();">Initialize</a> [<span id="initInfo">...</span>]</li>
+		<li><a href="javascript:startPlay();">Play</a> [<span id="playInfo">...</span>]</li>
+		<li><a href="javascript:stopPlay();">Stop</a></li>
+		<li><a href="javascript:rewind();">Rewind</a></li>
+		<li>Mute <a href="javascript:muteDrums();">drums</a> | <a href="javascript:muteInstruments();">instruments</a> | <a href="javascript:muteNone();">none</a></li>
+		<li>Loop 
+			<a href="javascript:loopMode=1;">
+			<ul>
+				<li>0:0</li>
+			</ul>
+			</a>
+			<a href="javascript:loopMode=2;">
+			<ul>
+				<li>0:1, 1:1, 2:1, 3:1<br/>
+				0:2, 1:2, 2:2, 3:2</li>
+			</ul>
+			</a>
+			<a href="javascript:loopMode=3;">
+			<ul>
+				<li>0:3, 1:3, 2:3, 3:3<br/>
+				0:4, 1:4, 2:4, 3:4</li>
+			</ul>
+			</a>
+			<ul>
+				<li><a href="javascript:loopMode=0;">whole song</a></li>
+			</ul>
+		</li>
+	</ul>
+	<p>See JSON <a href="http://molgav.nn.ru/x/sviridovtimeforward.molgav" target="_blank">data</a> for example.</p>
+	<h2>More examples</h2>
+	<p>WebGL <a href="http://molgav.nn.ru/babylonsynth/" target="_blank">demo</a> for desktop/mobile.</p>
+</body>
+</html>
