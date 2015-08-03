@@ -397,6 +397,26 @@ SSSynthesiser.prototype.rewind = function () {
 	this.currentBar = 0;
 	this.mix16Counter = 0;
 };
+SSSynthesiser.prototype.playSample = function (sssample,duration,pitch) {
+	var o={};
+	o.sssample = sssample;
+	o.audioBufferSourceNode = this.createAudioBufferSourceNode(o.sssample);
+	o.audioBufferSourceNode.start(0);
+	setTimeout(function () {
+		o.audioBufferSourceNode.stop();
+		o.audioBufferSourceNode = null;
+	}, duration);
+};
+SSSynthesiser.prototype.playKey = function (sssample,duration,pitch) {
+	var o={};
+	o.sssample = sssample;
+	o.audioBufferSourceNode = this.createAudioBufferSourceNodeByKey(o.sssample,pitch);
+	o.audioBufferSourceNode.start(0);
+	setTimeout(function () {
+		o.audioBufferSourceNode.stop();
+		o.audioBufferSourceNode = null;
+	}, duration);
+};
 SSSynthesiser.prototype.SSSample = function () {
 	this.stepDelta = 0;
 	this.signed = null;
