@@ -8,7 +8,7 @@
 	<script>
 	var initialized = false;
 	var sssynthesiser = null;
-	var playInfo = null;
+	var initInfo = null;
 	var loopMode=0;
 	function initSSSynthesiser() {
 		if (!initialized) {
@@ -20,8 +20,7 @@
 				sssynthesiser = new SSSynthesiser(o);
 				sssynthesiser.moveToNextPosition = xMoveToNextPosition;
 				initialized = true;
-				document.getElementById("initInfo").innerHTML = "initialized";
-				playInfo = document.getElementById("playInfo");
+				initInfo = document.getElementById("initInfo");
 				startInfoLoop();
 			};
 			xmlHttpRequest.onerror = function (xmlHttpRequestProgressEvent) {
@@ -73,7 +72,7 @@
 			}
 		}
 		info = info + ", audiocontext time " + sssynthesiser.audioContext.currentTime;
-		playInfo.innerHTML = info;
+		initInfo.innerHTML = info;
 		setTimeout(startInfoLoop, 333);
 	}
 	function ready() {
@@ -145,6 +144,9 @@
 			sssynthesiser.findSampleBySubPath("drums/000/Chaos_128/061_046-046_60_-4600.0_8-34789_32000").volume = 0.25;
 		}
 	}
+	function mode(m){
+		loopMode=m;
+	}
 	</script>
 </head>
 <body>
@@ -152,31 +154,31 @@
 	<p>How to use <a href="https://github.com/surikov/SSSynthesiser.js" target="_blank">SSSynthesiser.js</a> to play <a href="http://molgav.nn.ru/?song=x2/1433934921.66" target="_blank">example</a>.</p>
 	<ul>
 		<li><a href="javascript:initSSSynthesiser();">Initialize</a> [<span id="initInfo">...</span>]</li>
-		<li><a href="javascript:startPlay();">Play</a> [<span id="playInfo">...</span>]</li>
+		<li><a href="javascript:startPlay();">Play</a></li>
 		<li><a href="javascript:stopPlay();">Stop</a></li>
 		<li><a href="javascript:rewind();">Rewind</a></li>
 		<li>Mute <a href="javascript:muteDrums();">drums</a> | <a href="javascript:muteInstruments();">instruments</a> | <a href="javascript:muteNone();">none</a></li>
 		<li>Loop 
-			<a href="javascript:loopMode=1;">
 			<ul>
-				<li>0:0</li>
-			</ul>
-			</a>
-			<a href="javascript:loopMode=2;">
-			<ul>
-				<li>0:1, 1:1, 2:1, 3:1<br/>
-				0:2, 1:2, 2:2, 3:2</li>
-			</ul>
-			</a>
-			<a href="javascript:loopMode=3;">
-			<ul>
-				<li>0:3, 1:3, 2:3, 3:3<br/>
-				0:4, 1:4, 2:4, 3:4</li>
-			</ul>
-			</a>
-			<ul>
-				<li><a href="javascript:loopMode=0;">whole song</a></li>
-			</ul>
+				<li><a href="javascript:mode(0);">whole song</a></li>
+				<li><a href="javascript:mode(1);">piece 1</a>
+					<ul>
+						<li>0:0</li>
+					</ul>
+				</li>
+				<li><a href="javascript:mode(2);">piece 2</a>
+					<ul>
+						<li>0:1, 1:1, 2:1, 3:1<br/>
+							0:2, 1:2, 2:2, 3:2</li>
+					</ul>
+				</li>
+				<li><a href="javascript:mode(3);">piece 3</a>
+					<ul>
+						<li>0:3, 1:3, 2:3, 3:3<br/>
+							0:4, 1:4, 2:4, 3:4</li>
+					</ul>
+				</li>
+			</ul>				
 		</li>
 	</ul>
 	<p>See JSON <a href="http://molgav.nn.ru/x/sviridovtimeforward.molgav" target="_blank">data</a> for example.</p>
