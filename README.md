@@ -1,5 +1,6 @@
 # SSSynthesiser.js
 Web Audio API synthesiser. Pure HTML5 implementation.
+Compatible with desktop and mobile Chrome/Opera/Firefox/Safari/Edge.
 ## Examples
 * [simple example](http://molgav.nn.ru/x/example.html)
 * [WebGL example](http://molgav.nn.ru/babylonsynth/)
