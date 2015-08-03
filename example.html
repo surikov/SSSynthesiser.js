@@ -104,10 +104,7 @@
 	function rewind() {
 		if (ready()) {
 			console.log("rewind");
-			sssynthesiser.currentX = 0;
-			sssynthesiser.currentY = 0;
-			sssynthesiser.currentPosition = sssynthesiser.findPosition(0, 0);
-			sssynthesiser.mix16Counter = 0;
+			sssynthesiser.rewind();
 		}
 	}
 	function muteDrums() {
@@ -147,11 +144,21 @@
 	function mode(m){
 		loopMode=m;
 	}
+	function hitDrum(s){
+		if (ready()) {
+			sssynthesiser.playSample(sssynthesiser.findSampleBySubPath(s),2000);
+		}
+	}
+	function hitKey(n){
+		if (ready()) {
+			sssynthesiser.playKey(sssynthesiser.findSampleBySubPath("instruments/000/Chaos_000/003_048-052_60_-5000_8-32231_22050"),1000,n);
+		}
+	}
 	</script>
 </head>
 <body>
 	<h1>SSSynthesiser.js example</h1>
-	<p>How to use <a href="https://github.com/surikov/SSSynthesiser.js" target="_blank">SSSynthesiser.js</a> to play <a href="http://molgav.nn.ru/?song=x2/1433934921.66" target="_blank">example</a>.</p>
+	<p>How to use <a href="https://github.com/surikov/SSSynthesiser.js" target="_blank">SSSynthesiser.js</a> to play <a href="http://molgav.nn.ru/?song=x2/1433934921.66" target="_blank">G.Sviridov 'Time, Forward!'</a>.</p>
 	<ul>
 		<li><a href="javascript:initSSSynthesiser();">Initialize</a> [<span id="initInfo">...</span>]</li>
 		<li><a href="javascript:startPlay();">Play</a></li>
@@ -180,6 +187,8 @@
 				</li>
 			</ul>				
 		</li>
+		<li>Hit drum <a href="javascript:hitDrum('drums/000/Chaos_128/001_035-035_60_-3500.0_8-16861_44100');">bass</a> | <a href="javascript:hitDrum('drums/000/Chaos_128/004_038-038_60_-3800.0_8-17828_44100');">snare</a> | <a href="javascript:hitDrum('drums/000/Chaos_128/061_046-046_60_-4600.0_8-34789_32000');">hihat</a></li>
+		<li>Hit piano <a href="javascript:hitKey(45);">A</a> | <a href="javascript:hitKey(47);">H</a> | <a href="javascript:hitKey(48);">C</a> | <a href="javascript:hitKey(50);">D</a> | <a href="javascript:hitKey(52);">E</a> | <a href="javascript:hitKey(53);">F</a> | <a href="javascript:hitKey(55);">G</a> | <a href="javascript:hitKey(57);">a</a></li>
 	</ul>
 	<p>See JSON <a href="http://molgav.nn.ru/x/sviridovtimeforward.molgav" target="_blank">data</a> for example.</p>
 	<h2>More examples</h2>
