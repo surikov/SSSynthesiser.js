@@ -55,6 +55,10 @@ Play a drum:
 ```javascript
 sssynthesiser.playSample(sssynthesiser.findSampleBySubPath(s),2000);
 ```
+Play a chord:
+```javascript
+sssynthesiser.playChord(sssynthesiser.findSampleBySubPath(s),2000,[48,52,55,60,64]);
+```
 
 ## Song data format
 Song similar to tracker modules. It should include patterns, positions, binary samples etc. See [example](http://molgav.nn.ru/x/sviridovtimeforward.molgav) of song.
