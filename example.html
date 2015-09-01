@@ -156,6 +156,11 @@
 			sssynthesiser.playKey(sssynthesiser.findSampleBySubPath("instruments/000/Chaos_000/003_048-052_60_-5000_8-32231_22050"),1000,n);
 		}
 	}
+	function hitChord(ns){
+		if (ready()) {
+			sssynthesiser.playChord(sssynthesiser.findSampleBySubPath("instruments/034"),1000,ns);
+		}
+	}
 	</script>
 </head>
 <body>
@@ -191,6 +196,11 @@
 		</li>
 		<li>Hit drum <a href="javascript:hitDrum('drums/000/Chaos_128/001_035-035_60_-3500.0_8-16861_44100');">bass</a> | <a href="javascript:hitDrum('drums/000/Chaos_128/004_038-038_60_-3800.0_8-17828_44100');">snare</a> | <a href="javascript:hitDrum('drums/000/Chaos_128/061_046-046_60_-4600.0_8-34789_32000');">hihat</a></li>
 		<li>Hit piano <a href="javascript:hitKey(45);">A</a> | <a href="javascript:hitKey(47);">H</a> | <a href="javascript:hitKey(48);">C</a> | <a href="javascript:hitKey(50);">D</a> | <a href="javascript:hitKey(52);">E</a> | <a href="javascript:hitKey(53);">F</a> | <a href="javascript:hitKey(55);">G</a> | <a href="javascript:hitKey(57);">a</a></li>
+		<li>Hit chord <a href="javascript:hitChord([45,52,57,61,64]);">A</a>
+					| <a href="javascript:hitChord([45,52,57,60,64]);">Am</a>
+					| <a href="javascript:hitChord([48,52,55,60,64]);">C</a>
+					| <a href="javascript:hitChord([48,51,55,60,67]);">Cm</a>
+		</li>
 	</ul>
 	<p>See JSON <a href="http://molgav.nn.ru/x/sviridovtimeforward.molgav" target="_blank">data</a> for example.</p>
 	<h2>More examples</h2>

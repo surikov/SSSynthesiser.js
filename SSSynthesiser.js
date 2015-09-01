@@ -6,7 +6,7 @@ if (typeof console == "undefined") {
 	};
 }
 function SSSynthesiser(songData) {
-	this.version = "1.02";
+	this.version = "1.03";
 	console.log("SSSynthesiser", this.version);
 	this.song = songData;
 	this.buffer16size = this.mixSampleRate * (60.0 / 4.0) / this.song.tempo; ;
@@ -417,6 +417,25 @@ SSSynthesiser.prototype.playKey = function (sssample,duration,pitch) {
 		o.audioBufferSourceNode = null;
 	}, duration);
 };
+SSSynthesiser.prototype.playChord = function (sssample,duration,pitches) {
+	var o={};
+	o.sssample = sssample;
+	o.audioBufferSourceNodes=[];
+	for(var i=0;i<pitches.length;i++){
+		var s = this.createAudioBufferSourceNodeByKey(o.sssample,pitches[i]);
+		o.audioBufferSourceNodes.push(s);
+		}
+	for(var i=0;i<o.audioBufferSourceNodes.length;i++){
+		o.audioBufferSourceNodes[i].start(0);
+		}
+	setTimeout(function () {
+		for(var i=0;i<o.audioBufferSourceNodes.length;i++){
+			o.audioBufferSourceNodes[i].stop();
+			o.audioBufferSourceNodes[i]=null;
+		}
+		o.audioBufferSourceNodes = null;
+	}, duration);
+};
 SSSynthesiser.prototype.SSSample = function () {
 	this.stepDelta = 0;
 	this.signed = null;
@@ -442,7 +461,7 @@ SSSynthesiser.prototype.soundFrequencies = [//
 , 23.12 // F#0/Gb0
 , 24.50 // G0
 , 25.96 // G#0/Ab0
-, 27.50 // A0
+, 27.50 // A0				*9
 , 29.14 // A#0/Bb0
 , 30.87 // B0
 , 32.70 // C1
@@ -454,7 +473,7 @@ SSSynthesiser.prototype.soundFrequencies = [//
 , 46.25 // F#1/Gb1
 , 49.00 // G1
 , 51.91 // G#1/Ab1
-, 55.00 // A1
+, 55.00 // A1				*21
 , 58.27 // A#1/Bb1
 , 61.74 // B1
 , 65.41 // C2
@@ -466,43 +485,43 @@ SSSynthesiser.prototype.soundFrequencies = [//
 , 92.50 // F#2/Gb2
 , 98.00 // G2
 , 103.83 // G#2/Ab2
-, 110.00 // A2
+, 110.00 // A2				*33
 , 116.54 // A#2/Bb2
 , 123.47 // B2
 , 130.81 // C3
 , 138.59 // C#3/Db3
 , 146.83 // D3
 , 155.56 // D#3/Eb3
-, 164.81 // E3
+, 164.81 // E3				*40
 , 174.61 // F3
 , 185.00 // F#3/Gb3
 , 196.00 // G3
 , 207.65 // G#3/Ab3
-, 220.00 // A3
+, 220.00 // A3				*45
 , 233.08 // A#3/Bb3
 , 246.94 // B3
 , 261.63 // C4
 , 277.18 // C#4/Db4
-, 293.66 // D4
+, 293.66 // D4				*50
 , 311.13 // D#4/Eb4
 , 329.63 // E4
 , 349.23 // F4
 , 369.99 // F#4/Gb4
-, 392.00 // G4
+, 392.00 // G4				*55
 , 415.30 // G#4/Ab4
 , 440.00 // A4
 , 466.16 // A#4/Bb4
-, 493.88 // B4
+, 493.88 // B4				*59
 , 523.25 // C5
 , 554.37 // C#5/Db5
 , 587.33 // D5
 , 622.25 // D#5/Eb5
-, 659.26 // E5
+, 659.26 // E5				*64
 , 698.46 // F5
 , 739.99 // F#5/Gb5
 , 783.99 // G5
 , 830.61 // G#5/Ab5
-, 880.00 // A5
+, 880.00 // A5				*69
 , 932.33 // A#5/Bb5
 , 987.77 // B5
 , 1046.50 // C6
@@ -514,7 +533,7 @@ SSSynthesiser.prototype.soundFrequencies = [//
 , 1479.98 // F#6/Gb6
 , 1567.98 // G6
 , 1661.22 // G#6/Ab6
-, 1760.00 // A6
+, 1760.00 // A6				*81
 , 1864.66 // A#6/Bb6
 , 1975.53 // B6
 , 2093.00 // C7
@@ -526,7 +545,7 @@ SSSynthesiser.prototype.soundFrequencies = [//
 , 2959.96 // F#7/Gb7
 , 3135.96 // G7
 , 3322.44 // G#7/Ab7
-, 3520.00 // A7
+, 3520.00 // A7				*93
 , 3729.31 // A#7/Bb7
 , 3951.07 // B7
 , 2093.00 * 2.0 //
