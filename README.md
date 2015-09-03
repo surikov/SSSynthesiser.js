@@ -4,6 +4,7 @@ Compatible with desktop and mobile Chrome/Opera/Firefox/Safari/Edge.
 ## Examples
 * [simple example](http://molgav.nn.ru/x/example.html)
 * [WebGL example](http://molgav.nn.ru/babylonsynth/)
+* [Song library](http://molgav.nn.ru/liblist.php)
 
 ## Using
 Add link to your page:
