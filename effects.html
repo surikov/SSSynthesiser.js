@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>SSSynthesiser.js effects</title>
+	<script src="SSSynthesiser.js"></script>
+	<script>
+var filterBiquadLowPass = null;
+var filterBiquadLowShelf = null;
+var filterConvolver = null;
+var eq60 = null;
+var eq170 = null;
+var eq310 = null;
+var eq600 = null;
+var eq1000 = null;
+var eq3000 = null;
+var eq6000 = null;
+var eq12000 = null;
+var eq14000 = null;
+var eq16000 = null;
+function init() {
+	var xmlHttpRequest = new XMLHttpRequest();
+	xmlHttpRequest.open('GET', "http://molgav.nn.ru/x/riff.molgav", true);
+	xmlHttpRequest.onload = function () {
+		var o = JSON.parse(xmlHttpRequest.response);
+		sssynthesiser = new SSSynthesiser(o);
+		filterBiquadLowPass = sssynthesiser.addFilterBiquadLowPass();
+		filterBiquadLowShelf = sssynthesiser.addFilterBiquadLowShelf();
+		filterConvolver = sssynthesiser.addFilterConvolver();
+		eq60 = sssynthesiser.addFilterBiquadPeaking();
+		eq60.Q = 1;
+		eq60.gain = 0;
+		eq60.frequency = 60;
+		eq60.on = true;
+		eq170 = sssynthesiser.addFilterBiquadPeaking();
+		eq170.Q = 1;
+		eq170.gain = 0;
+		eq170.frequency = 170;
+		eq170.on = true;
+		eq310 = sssynthesiser.addFilterBiquadPeaking();
+		eq310.Q = 1;
+		eq310.gain = 0;
+		eq310.frequency = 310;
+		eq310.on = true;
+		eq600 = sssynthesiser.addFilterBiquadPeaking();
+		eq600.Q = 1;
+		eq600.gain = 0;
+		eq600.frequency = 600;
+		eq600.on = true;
+		eq1000 = sssynthesiser.addFilterBiquadPeaking();
+		eq1000.Q = 1;
+		eq1000.gain = 0;
+		eq1000.frequency = 1000;
+		eq1000.on = true;
+		eq3000 = sssynthesiser.addFilterBiquadPeaking();
+		eq3000.Q = 1;
+		eq3000.gain = 0;
+		eq3000.frequency = 3000;
+		eq3000.on = true;
+		eq6000 = sssynthesiser.addFilterBiquadPeaking();
+		eq6000.Q = 1;
+		eq6000.gain = 0;
+		eq6000.frequency = 6000;
+		eq6000.on = true;
+		eq12000 = sssynthesiser.addFilterBiquadPeaking();
+		eq12000.Q = 1;
+		eq12000.gain = 0;
+		eq12000.frequency = 12000;
+		eq12000.on = true;
+		eq14000 = sssynthesiser.addFilterBiquadPeaking();
+		eq14000.Q = 1;
+		eq14000.gain = 0;
+		eq14000.frequency = 14000;
+		eq14000.on = true;
+		eq16000 = sssynthesiser.addFilterBiquadPeaking();
+		eq16000.Q = 1;
+		eq16000.gain = 0;
+		eq16000.frequency = 16000;
+		eq16000.on = true;
+		console.log("ready");
+	};
+	xmlHttpRequest.onerror = function (xmlHttpRequestProgressEvent) {
+		console.log("error " + xmlHttpRequestProgressEvent);
+	};
+	xmlHttpRequest.send();
+}
+function startPlay() {
+	changeGain();
+	changeLowpass();
+	changeLowshelf();
+	sssynthesiser.startPlaySong();
+}
+function changeLowshelf() {
+	var t = document.getElementById("fxLowshelf");
+	var f = document.getElementById("lowshelfFrequency");
+	var sf = document.getElementById("showLowshelfFrequency");
+	var g = document.getElementById("lowshelfGain");
+	var sg = document.getElementById("showLowshelfGain");
+	filterBiquadLowShelf.on = t.checked;
+	filterBiquadLowShelf.frequency = f.value;
+	sf.innerText = '' + f.value;
+	filterBiquadLowShelf.gain = g.value;
+	sg.innerText = '' + g.value;
+	sssynthesiser.resetFilters();
+}
+function changeLowpass() {
+	var t = document.getElementById("fxLowpass");
+	var f = document.getElementById("lowpassFrequency");
+	var sf = document.getElementById("showLowpassFrequency");
+	var q = document.getElementById("lowpassQ");
+	var sq = document.getElementById("showLowpassQ");
+	filterBiquadLowPass.on = t.checked;
+	filterBiquadLowPass.frequency = f.value;
+	sf.innerText = '' + f.value;
+	filterBiquadLowPass.gain = q.value;
+	sq.innerText = '' + q.value;
+	sssynthesiser.resetFilters();
+}
+function changeConvolver() {
+	var t = document.getElementById("fxConvolver");
+	var decayConvolver = document.getElementById("decayConvolver");
+	var valueConvolver = document.getElementById("valueConvolver");
+	filterConvolver.on = t.checked;
+	filterConvolver.decay = decayConvolver.value;
+	valueConvolver.innerText = '' + decayConvolver.value;
+	sssynthesiser.resetFilters();
+}
+function changeEqualizer() {
+	eq60.gain = document.getElementById("eq60").value;
+	eq170.gain = document.getElementById("eq170").value;
+	eq310.gain = document.getElementById("eq310").value;
+	eq600.gain = document.getElementById("eq600").value;
+	eq1000.gain = document.getElementById("eq1000").value;
+	eq3000.gain = document.getElementById("eq3000").value;
+	eq6000.gain = document.getElementById("eq6000").value;
+	eq12000.gain = document.getElementById("eq12000").value;
+	eq14000.gain = document.getElementById("eq14000").value;
+	eq16000.gain = document.getElementById("eq16000").value;
+	var t = document.getElementById("fxEq");
+	eq60.on = t.checked;
+	eq170.on = t.checked;
+	eq310.on = t.checked;
+	eq600.on = t.checked;
+	eq1000.on = t.checked;
+	eq3000.on = t.checked;
+	eq6000.on = t.checked;
+	eq12000.on = t.checked;
+	eq14000.on = t.checked;
+	eq16000.on = t.checked;
+	sssynthesiser.resetFilters();
+}
+	</script>
+</head>
+<body>
+	<h1>SSSynthesiser.js effects</h1>
+	<ul>
+		<li><a href="javascript:sssynthesiser.startPlaySong();">Play</a></li>
+		<li><a href="javascript:sssynthesiser.stopPlaySong();">Stop</a></li>
+		<li><a href="http://molgav.nn.ru/?song=x2/1445187185.61" target="_blank">http://molgav.nn.ru/?song=x2/1445187185.61</a></li>
+	</ul>
+	<p><input id="fxEq"  type="checkbox" onchange="changeEqualizer();">Equalizer
+		<ul>
+			<li><input id="eq60" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>60</li>
+			<li><input id="eq170" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>170</li>
+			<li><input id="eq310" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>310</li>
+			<li><input id="eq600" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>600</li>
+			<li><input id="eq1000" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>1000</li>
+			<li><input id="eq3000" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>3000</li>
+			<li><input id="eq6000" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>6000</li>
+			<li><input id="eq12000" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>12000</li>
+			<li><input id="eq14000" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>14000</li>
+			<li><input id="eq16000" type="range" value="0" min="-16" max="16" step="0.1" onchange="changeEqualizer();"/>16000</li>
+		</ul>
+	</p>
+	<p>Effects
+		<ul>
+			<li><input id="fxLowpass" type="checkbox" onchange="changeLowpass();">Biquad lowpass
+				<ul>
+					<li><input id="lowpassQ" type="range" value="25" min="-50" max="50" step="25" 
+						onchange="changeLowpass();"/>Q <span id="showLowpassQ">25</span></li>
+					<li><input id="lowpassFrequency" type="range" value="1000" min="100" max="2000" step="100" 
+						onchange="changeLowpass();"/>frequency <span id="showLowpassFrequency">1000</span></li>
+				</ul></li>
+			<li><input id="fxLowshelf" type="checkbox" onchange="changeLowshelf();">Biquad lowshelf
+				<ul>
+					<li><input id="lowshelfGain" type="range" value="25" min="-50" max="50" step="25" 
+						onchange="changeLowshelf();"/>gain <span id="showLowshelfGain">25</span></li>
+					<li><input id="lowshelfFrequency" type="range" value="1000" min="100" max="2000" step="100" 
+						onchange="changeLowshelf();"/>frequency <span id="showLowshelfFrequency">1000</span></li>
+				</ul></li>
+			<li><input id="fxConvolver"  type="checkbox" onchange="changeConvolver();">Convolver
+				<ul>
+					<li><input id="decayConvolver" type="range" value="2.0" min="0" max="5" step="0.1" 
+						onchange="changeConvolver();"/> <span id="valueConvolver">2.0</span></li>
+				</ul>
+			</li>
+		</ul>
+	</p>
+	<script>
+		init();
+	</script>
+</body>
+</html>

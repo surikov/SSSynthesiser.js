@@ -3,6 +3,7 @@ Web Audio API synthesiser. Pure HTML5 implementation.
 Compatible with desktop and mobile Chrome/Opera/Firefox/Safari/Edge.
 ## Examples
 * [simple example](http://molgav.nn.ru/x/example.html)
+* [FX example](http://molgav.nn.ru/x/effects.html)
 * [WebGL example](http://molgav.nn.ru/babylonsynth/)
 * [Song library](http://molgav.nn.ru/liblist.php)
 

@@ -5,8 +5,9 @@ if (typeof console == "undefined") {
 		}
 	};
 }
+
 function SSSynthesiser(songData) {
-	this.version = "1.03";
+	this.version = "1.04";
 	console.log("SSSynthesiser", this.version);
 	this.song = songData;
 	this.buffer16size = this.mixSampleRate * (60.0 / 4.0) / this.song.tempo; ;
@@ -23,6 +24,11 @@ function SSSynthesiser(songData) {
 	this.initialized = true;
 	return this;
 }
+function AudioFilter() {
+	this.on = false;
+	this.filterNode = null;
+	return this;
+}
 SSSynthesiser.prototype.decayRatio = 0.9995;
 SSSynthesiser.prototype.stopped = true;
 SSSynthesiser.prototype.scriptProcessorNode = null;
@@ -36,6 +42,7 @@ SSSynthesiser.prototype.minSampling = 3000 * 4;
 SSSynthesiser.prototype.maxSampling = 192000;
 SSSynthesiser.prototype.currentPosition = null;
 SSSynthesiser.prototype.mixSamples = [];
+SSSynthesiser.prototype.filters = [];
 SSSynthesiser.prototype.audioContext = null;
 SSSynthesiser.prototype.stopPlaySong = function () {
 	this.stopped = true;
@@ -75,7 +82,7 @@ SSSynthesiser.prototype.createAudioBufferSourceNode = function (sample) {
 	audioBufferSourceNode.buffer = audioBuffer;
 	audioBufferSourceNode.connect(this.audioContext.destination);
 	return audioBufferSourceNode;
-}
+};
 SSSynthesiser.prototype.createAudioBufferSourceNodeByKey = function (sample, key) {
 	var signed = sample.signed;
 	var findx = Math.floor(sample.basePitch);
@@ -120,6 +127,103 @@ SSSynthesiser.prototype.createAudioBufferSourceNodeByKey = function (sample, key
 	}
 	audioBufferSourceNode.connect(this.audioContext.destination);
 	return audioBufferSourceNode;
+};
+SSSynthesiser.prototype.addFilterGaim = function () {
+	var f = new AudioFilter();
+	f.filterNode = this.audioContext.createGain();
+	f.value = 1;
+	f.setup = function () {
+		this.filterNode.gain.value = this.value;
+	};
+	this.filters.push(f);
+	return f;
+}
+SSSynthesiser.prototype.addFilterBiquadLowPass = function () {
+	var f = new AudioFilter();
+	f.filterNode = this.audioContext.createBiquadFilter();
+	f.filterNode.type = "lowpass";
+	f.frequency = 1000;
+	f.Q = 25;
+	f.setup = function () {
+		this.filterNode.frequency.value = this.frequency;
+		this.filterNode.Q.value = this.Q;
+	};
+	this.filters.push(f);
+	return f;
+}
+SSSynthesiser.prototype.addFilterBiquadLowShelf = function () {
+	var f = new AudioFilter();
+	f.filterNode = this.audioContext.createBiquadFilter();
+	f.filterNode.type = "lowshelf";
+	f.frequency = 1000;
+	f.gain = 25;
+	f.setup = function () {
+		this.filterNode.frequency.value = this.frequency;
+		this.filterNode.gain.value = this.gain;
+	};
+	this.filters.push(f);
+	return f;
+}
+SSSynthesiser.prototype.addFilterBiquadPeaking = function () {
+	var f = new AudioFilter();
+	f.filterNode = this.audioContext.createBiquadFilter();
+	f.filterNode.type = "peaking";
+	f.frequency = 1000;
+	f.Q = 1;
+	f.gain = 0;
+	f.setup = function () {
+		this.filterNode.frequency.value = this.frequency;
+		this.filterNode.gain.value = this.gain;
+		this.filterNode.Q.value = this.Q;
+	};
+	this.filters.push(f);
+	return f;
+}
+SSSynthesiser.prototype.addFilterConvolver = function () {
+	var f = new AudioFilter();
+	var me=this;
+	f.filterNode = this.audioContext.createConvolver();
+	f.decay = 0;
+	f.setup = function () {
+		f.filterNode.buffer = me.createConvoleBuffer(f.decay);
+	};
+	this.filters.push(f);
+	return f;
+}
+SSSynthesiser.prototype.createConvoleBuffer = function (decay) {
+	var sampleRate = this.audioContext.sampleRate;
+	var length = sampleRate * 1;
+	var b = this.audioContext.createBuffer(1, length, sampleRate);
+	var data = b.getChannelData(0);
+	for (var i = 0; i < length; i++) {
+		data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+	}
+	return b;
+}
+SSSynthesiser.prototype.resetFilters = function () {
+	this.disconnectFilters();
+	this.connectFilters();
+}
+SSSynthesiser.prototype.disconnectFilters = function () {
+	if (this.scriptProcessorNode != null) {
+		this.scriptProcessorNode.disconnect();
+	}
+	for (var i = 0; i < this.filters.length; i++) {
+		this.filters[i].filterNode.disconnect();
+	}
+}
+SSSynthesiser.prototype.connectFilters = function () {
+	if (this.scriptProcessorNode != null) {
+		var currentNode = this.scriptProcessorNode;
+		for (var i = 0; i < this.filters.length; i++) {
+			if (this.filters[i].on) {
+				this.filters[i].setup();
+				currentNode.connect(this.filters[i].filterNode);
+				currentNode = this.filters[i].filterNode;
+			}
+		}
+		currentNode.connect(this.audioContext.destination);
+	}
 }
 SSSynthesiser.prototype.startPlaySong = function () {
 	if (!this.stopped) {
@@ -135,7 +239,7 @@ SSSynthesiser.prototype.startPlaySong = function () {
 		if (me.stopped) {
 			try {
 				me.scriptProcessorNode.onaudioprocess = null;
-				me.scriptProcessorNode.disconnect(0);
+				me.disconnectFilters();
 				me.scriptProcessorNode = null;
 			} catch (e) {
 				console.log(e);
@@ -148,7 +252,7 @@ SSSynthesiser.prototype.startPlaySong = function () {
 			}
 		}
 	};
-	this.scriptProcessorNode.connect(this.audioContext.destination);
+	this.connectFilters();
 };
 SSSynthesiser.prototype.mixNext = function (size) {
 	var signed = [];
@@ -298,7 +402,6 @@ SSSynthesiser.prototype.existsRightPosition = function (x, y) {
 };
 SSSynthesiser.prototype.moveToNextSixteenth = function () {
 	this.mix16Counter++;
-	//console.log("onJumpSixteenth",this.mix16Counter);
 };
 SSSynthesiser.prototype.moveToNextPosition = function () {
 	this.findAndMoveToNextPosition();
@@ -316,7 +419,6 @@ SSSynthesiser.prototype.findAndMoveToNextPosition = function () {
 		}
 	}
 	this.currentPosition = this.findPosition(this.currentX, this.currentY);
-	//console.log("moveToNextPosition", this.currentX, this.currentY);
 };
 
 SSSynthesiser.prototype.findPosition = function (x, y) {
@@ -397,8 +499,8 @@ SSSynthesiser.prototype.rewind = function () {
 	this.currentBar = 0;
 	this.mix16Counter = 0;
 };
-SSSynthesiser.prototype.playSample = function (sssample,duration,pitch) {
-	var o={};
+SSSynthesiser.prototype.playSample = function (sssample, duration, pitch) {
+	var o = {};
 	o.sssample = sssample;
 	o.audioBufferSourceNode = this.createAudioBufferSourceNode(o.sssample);
 	o.audioBufferSourceNode.start(0);
@@ -407,31 +509,31 @@ SSSynthesiser.prototype.playSample = function (sssample,duration,pitch) {
 		o.audioBufferSourceNode = null;
 	}, duration);
 };
-SSSynthesiser.prototype.playKey = function (sssample,duration,pitch) {
-	var o={};
+SSSynthesiser.prototype.playKey = function (sssample, duration, pitch) {
+	var o = {};
 	o.sssample = sssample;
-	o.audioBufferSourceNode = this.createAudioBufferSourceNodeByKey(o.sssample,pitch);
+	o.audioBufferSourceNode = this.createAudioBufferSourceNodeByKey(o.sssample, pitch);
 	o.audioBufferSourceNode.start(0);
 	setTimeout(function () {
 		o.audioBufferSourceNode.stop();
 		o.audioBufferSourceNode = null;
 	}, duration);
 };
-SSSynthesiser.prototype.playChord = function (sssample,duration,pitches) {
-	var o={};
+SSSynthesiser.prototype.playChord = function (sssample, duration, pitches) {
+	var o = {};
 	o.sssample = sssample;
-	o.audioBufferSourceNodes=[];
-	for(var i=0;i<pitches.length;i++){
-		var s = this.createAudioBufferSourceNodeByKey(o.sssample,pitches[i]);
+	o.audioBufferSourceNodes = [];
+	for (var i = 0; i < pitches.length; i++) {
+		var s = this.createAudioBufferSourceNodeByKey(o.sssample, pitches[i]);
 		o.audioBufferSourceNodes.push(s);
-		}
-	for(var i=0;i<o.audioBufferSourceNodes.length;i++){
+	}
+	for (var i = 0; i < o.audioBufferSourceNodes.length; i++) {
 		o.audioBufferSourceNodes[i].start(0);
-		}
+	}
 	setTimeout(function () {
-		for(var i=0;i<o.audioBufferSourceNodes.length;i++){
+		for (var i = 0; i < o.audioBufferSourceNodes.length; i++) {
 			o.audioBufferSourceNodes[i].stop();
-			o.audioBufferSourceNodes[i]=null;
+			o.audioBufferSourceNodes[i] = null;
 		}
 		o.audioBufferSourceNodes = null;
 	}, duration);
