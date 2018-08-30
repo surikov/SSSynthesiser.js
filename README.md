@@ -1,3 +1,10 @@
+# Project closed
+
+see [Molgav](http://molgav.nn.ru/)
+
+
+
+
 # SSSynthesiser.js
 Web Audio API synthesiser. Pure HTML5 implementation.
 Compatible with desktop and mobile Chrome/Opera/Firefox/Safari/Edge.
